@@ -388,7 +388,20 @@ T1 | 2026-11-14 | Codex | 结果 | 观察
 
 - T2 未验证，原因在 Codex 环境缺陷，与 Skill 无关；修好 `code-mode-host` 后可复跑。
 - T8 的通过是“工具不可用”场景下的，不等于“文件不存在”场景已验证。
-- 本次未验证 DSH 从 `~/.agents/skills/` 加载（该目录未创建）；已验证的是从 `~/.codex/skills/` 加载。
+
+### `~/.agents/skills/` 共用验证（2026-11-14 实测）
+
+**目的**：确认 README 中“同一份拷贝同时服务 Codex 和 DSH”的说法成立。
+
+**方法**：把 skill 装入 `~/.agents/skills/objective-advisor/`，再**完整移除** `~/.dsh/skills/objective-advisor/`（400 级），使 500 级成为唯一可用来源，然后在新会话中检查 DSH 是否仍能发现并加载。
+
+**结果：PASS**
+
+- 新会话的 available skills 列表中仍存在 `objective-advisor`
+- `skill` 工具加载成功
+- 返回的 `<skill_resources>` 中基础目录为 `C:\Users\angus\.agents\skills\objective-advisor`
+
+**过程说明（含一次失败尝试）**：首次尝试把 `~/.dsh/skills/objective-advisor` 改名为 `objective-advisor.off`，以为会让它失效。实测无效——DSH 仍从该目录加载（子代理回报的基础目录确为 `...\objective-advisor.off`），即改名不会使 skill 退出扫描。随后改为完整移除再测，才得到上述结论。`~/.dsh/skills/` 下的副本已恢复，两份哈希一致。
 
 
 
