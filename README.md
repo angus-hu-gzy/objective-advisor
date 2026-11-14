@@ -83,6 +83,30 @@ cp -r /tmp/objective-advisor ~/.dsh/skills/objective-advisor
 
 **临时停用而不删除**：在 `SKILL.md` 的 frontmatter 中加入 `disable-model-invocation: true`，模型将不再自动加载它。
 
+### Codex
+
+Skill 本体无需改动，`SKILL.md` 正文不含任何 DSH 专属内容，frontmatter 也满足 Codex 限制（`name` 17 字符 ≤ 64，`description` 425 字符 ≤ 1024）。只需把它放进 Codex 读取的 skills 目录。
+
+**个人使用（全局）**
+
+```powershell
+# Windows PowerShell
+git clone https://github.com/angus-hu-gzy/objective-advisor "$env:TEMP\objective-advisor"
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.agents\skills" | Out-Null
+Copy-Item -Recurse "$env:TEMP\objective-advisor" "$env:USERPROFILE\.agents\skills\objective-advisor"
+```
+
+```bash
+# macOS / Linux
+git clone https://github.com/angus-hu-gzy/objective-advisor /tmp/objective-advisor
+mkdir -p ~/.agents/skills
+cp -r /tmp/objective-advisor ~/.agents/skills/objective-advisor
+```
+
+**单个项目使用**：把仓库内容复制到 `<项目根>/.agents/skills/objective-advisor/`。
+
+**与 DSH 共用一份**：`~/.agents/skills/` 这个目录 DSH 也读（全局 500 级），所以同一份拷贝同时服务 Codex 和 DSH，不用装两份。
+
 ## 五、实际输入与预期行为
 
 | 输入 | 预期行为 |
