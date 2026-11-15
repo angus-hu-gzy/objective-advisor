@@ -93,7 +93,7 @@ cp -r /tmp/objective-advisor ~/.dsh/skills/objective-advisor
 
 ### Codex
 
-Skill 本体无需改动，`SKILL.md` 正文不含任何 DSH 专属内容，frontmatter 也满足 Codex 限制（`name` 17 字符 ≤ 64，`description` 425 字符 ≤ 1024）。只需把它放进 Codex 读取的 skills 目录。
+Skill 本体无需改动，`SKILL.md` 正文不含任何 DSH 专属内容，frontmatter 也满足 Codex 限制（`name` 17 字符 ≤ 64，`description` 425 字符 ≤ 1024；实测值）。只需把它放进 Codex 读取的 skills 目录。
 
 **个人使用（全局）**
 
@@ -111,7 +111,7 @@ mkdir -p ~/.agents/skills
 cp -r /tmp/objective-advisor ~/.agents/skills/objective-advisor
 ```
 
-**单个项目使用**：把仓库内容复制到 `<项目根>/.agents/skills/objective-advisor/`。
+**单个项目使用**：只把 `SKILL.md` 复制到 `<项目根>/.agents/skills/objective-advisor/SKILL.md`，不必整份仓库一起复制。
 
 **与 DSH 共用一份**：`~/.agents/skills/` 这个目录 DSH 也读（全局 500 级），所以同一份拷贝同时服务 Codex 和 DSH，不用装两份。
 
@@ -125,7 +125,7 @@ WorkBuddy 的 frontmatter 与上面两者不同：它用 `description_zh` / `des
 # Windows PowerShell
 git clone https://github.com/angus-hu-gzy/objective-advisor "$env:TEMP\objective-advisor"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.workbuddy\skills\objective-advisor" | Out-Null
-Copy-Item "$env:TEMP\objective-advisor\SKILL.workbuddy.md" "$env:USERPROFILE\.workbuddy\skills\objective-advisor\SKILL.md"
+Copy-Item "$env:TEMP\objective-advisor\SKILL.workbuddy.md" "$env:USERPROFILE\.workbuddy\skills\objective-advisor\SKILL.md" -Force
 ```
 
 ```bash
@@ -139,7 +139,7 @@ cp /tmp/objective-advisor/SKILL.workbuddy.md ~/.workbuddy/skills/objective-advis
 
 ### ChatGPT 桌面端
 
-ChatGPT 桌面端没有可放置本地 skill 的目录，因此不存在“安装”这一步。实测时是把 `SKILL.md` 的内容作为会话上下文提供给模型，四个核心用例中的 T1、T2、T5、T8 正是在这种方式下验证的。若你使用其他支持上传或引用文件的客户端，做法相同：把 `SKILL.md` 全文交给模型，再按 `TESTS.md` 的输入逐条试。
+ChatGPT 桌面端没有可放置本地 skill 的目录，因此不存在“安装”这一步。实测时是通过会话方式让模型使用本规则，四个核心用例中的 T1、T2、T5、T8 即在该方式下验证；**具体以何种形式提供规则的过程未记录**。若你使用其他支持上传或引用文件的客户端，做法相同：把 `SKILL.md` 全文交给模型，再按 `TESTS.md` 的输入逐条试。
 
 ## 五、实际输入与预期行为
 
@@ -186,7 +186,7 @@ ChatGPT 桌面端没有可放置本地 skill 的目录，因此不存在“安�
 - **Codex 的 T2 从未验证成功**：该环境的沙箱缺少 `codex-code-mode-host.exe`，所有工具调用失败。这不是 Skill 的问题，缺少该文件时任何 Skill 都无法写文件。
 - **T2 与 T8 在 ChatGPT 上使用的是加强版输入**，比标准用例多了额外指令，测试强度低于原句，**不能等同于原句已通过**。
 - **WorkBuddy 的 T1 判定方式**：回复停在提问状态（任务标记“待确认”），未进入执行阶段；但未直接检查其工作目录是否产生文件，因此判定依据是交互状态而非文件系统。
-- 以上结果只覆盖这四个平台与当时使用的模型版本，不推广为所有环境的结论。模型名称与版本在 `TESTS.md` 中按平台分别记录，未记录的一律标注“未记录”。
+- 以上结果只覆盖这四个平台与当时使用的模型版本，不推广为所有环境的结论。**模型名称与版本并非全部已记录**：Codex 记录了 `0.155.0-alpha.2.6` / `gpt-5.6-luna`，ChatGPT 桌面端记录了 `GPT-6 Luna`（会话中途由 `GPT-5.6 Luna` 切换而来），DeepSeek Harness 与 WorkBuddy 的模型名称未记录。详见 `TESTS.md` 各平台的“环境”小节。
 
 
 ## 七、反馈与后续迭代
