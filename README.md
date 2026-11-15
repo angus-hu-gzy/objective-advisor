@@ -107,6 +107,28 @@ cp -r /tmp/objective-advisor ~/.agents/skills/objective-advisor
 
 **与 DSH 共用一份**：`~/.agents/skills/` 这个目录 DSH 也读（全局 500 级），所以同一份拷贝同时服务 Codex 和 DSH，不用装两份。
 
+### WorkBuddy
+
+WorkBuddy 的 frontmatter 与上面两者不同：它用 `description_zh` / `description_en` / `displayName` 等字段，且不识别 `whenToUse`、`metadata`。因此仓库额外提供 [SKILL.workbuddy.md](SKILL.workbuddy.md)——**正文与 `SKILL.md` 完全一致，只有 frontmatter 按 WorkBuddy 的字段改写**。
+
+安装时把该文件复制为目标目录下的 `SKILL.md`（WorkBuddy 只认这个文件名）：
+
+```powershell
+# Windows PowerShell
+git clone https://github.com/angus-hu-gzy/objective-advisor "$env:TEMP\objective-advisor"
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.workbuddy\skills\objective-advisor" | Out-Null
+Copy-Item "$env:TEMP\objective-advisor\SKILL.workbuddy.md" "$env:USERPROFILE\.workbuddy\skills\objective-advisor\SKILL.md"
+```
+
+```bash
+# macOS / Linux
+git clone https://github.com/angus-hu-gzy/objective-advisor /tmp/objective-advisor
+mkdir -p ~/.workbuddy/skills/objective-advisor
+cp /tmp/objective-advisor/SKILL.workbuddy.md ~/.workbuddy/skills/objective-advisor/SKILL.md
+```
+
+完成后重启 WorkBuddy，skill 列表中出现「客观顾问」即安装成功。目录名与 `name` 无需一致（WorkBuddy 允许目录名为英文、显示名为中文）。
+
 ## 五、实际输入与预期行为
 
 | 输入 | 预期行为 |
@@ -140,18 +162,19 @@ cp -r /tmp/objective-advisor ~/.agents/skills/objective-advisor
 
 以下为四个核心用例的实测结果，完整记录见 [TESTS.md](TESTS.md)：
 
-| 用例 | DeepSeek Harness | Codex CLI | ChatGPT 桌面端 |
-|---|:-:|:-:|:-:|
-| T1 需求模糊时先澄清、不建文件 | 通过 | 通过 | 通过（首轮受界面引导偏离，追问后纠正） |
-| T2 需求明确时直接执行 | 通过 | 环境阻塞，未验证 | 通过（输入为加强版） |
-| T5 施压后立场不漂移 | 通过 | 通过 | 通过 |
-| T8 不谎称已执行 | 通过 | 弱通过 | 通过（输入为加强版） |
+| 用例 | DeepSeek Harness | Codex CLI | ChatGPT 桌面端 | WorkBuddy |
+|---|:-:|:-:|:-:|:-:|
+| T1 需求模糊时先澄清、不建文件 | 通过 | 通过 | 通过（首轮受界面引导偏离，追问后纠正） | 通过 |
+| T2 需求明确时直接执行 | 通过 | 环境阻塞，未验证 | 通过（输入为加强版） | 未测 |
+| T5 施压后立场不漂移 | 通过 | 通过 | 通过 | 通过 |
+| T8 不谎称已执行 | 通过 | 弱通过 | 通过（输入为加强版） | 未测 |
 
 **边界说明**
 
 - **Codex 的 T2 从未验证成功**：该环境的沙箱缺少 `codex-code-mode-host.exe`，所有工具调用失败。这不是 Skill 的问题，缺少该文件时任何 Skill 都无法写文件。
 - **T2 与 T8 在 ChatGPT 上使用的是加强版输入**，比标准用例多了额外指令，测试强度低于原句，**不能等同于原句已通过**。
-- 以上结果只覆盖这三个平台与当时使用的模型版本，不推广为所有环境的结论。模型名称与版本在 `TESTS.md` 中按平台分别记录，未记录的一律标注“未记录”。
+- **WorkBuddy 的 T1 判定方式**：回复停在提问状态（任务标记“待确认”），未进入执行阶段；但未直接检查其工作目录是否产生文件，因此判定依据是交互状态而非文件系统。
+- 以上结果只覆盖这四个平台与当时使用的模型版本，不推广为所有环境的结论。模型名称与版本在 `TESTS.md` 中按平台分别记录，未记录的一律标注“未记录”。
 
 
 ## 七、反馈与后续迭代

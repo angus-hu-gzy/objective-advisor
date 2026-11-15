@@ -418,8 +418,7 @@ T1 | 2026-11-14 | Codex | 结果 | 观察
 
 
 
-### `~/.agents/skills/` 共用验证（2026-11-14 实测）
-**目的**：确认 README 中“同一份拷贝同时服务 Codex 和 DSH”的说法成立。
+### `~/.agents/skills/` 共用验证（2026-11-14 实测）**目的**：确认 README 中“同一份拷贝同时服务 Codex 和 DSH”的说法成立。
 
 **方法**：把 skill 装入 `~/.agents/skills/objective-advisor/`，再**完整移除** `~/.dsh/skills/objective-advisor/`（400 级），使 500 级成为唯一可用来源，然后在新会话中检查 DSH 是否仍能发现并加载。
 
@@ -430,6 +429,35 @@ T1 | 2026-11-14 | Codex | 结果 | 观察
 - 返回的 `<skill_resources>` 中基础目录为 `C:\Users\angus\.agents\skills\objective-advisor`
 
 **过程说明（含一次失败尝试）**：首次尝试把 `~/.dsh/skills/objective-advisor` 改名为 `objective-advisor.off`，以为会让它失效。实测无效——DSH 仍从该目录加载（子代理回报的基础目录确为 `...\objective-advisor.off`），即改名不会使 skill 退出扫描。随后改为完整移除再测，才得到上述结论。`~/.dsh/skills/` 下的副本已恢复，两份哈希一致。
+
+---
+
+## WorkBuddy 实测记录（2026-11-15）
+
+### 环境
+
+| 项 | 值 |
+|---|---|
+| 客户端 | WorkBuddy 桌面版 V5.9.3（Electron） |
+| 安装位置 | `~/.workbuddy/skills/objective-advisor/SKILL.md` |
+| frontmatter | 与仓库 `SKILL.md` 不同，改用 `description_zh` / `description_en` / `displayName` / `slug` / `version` / `userInvocable` / `agent_created`，移除 `whenToUse` 与 `metadata`；正文完全一致。仓库内对应文件为 `SKILL.workbuddy.md` |
+| 模型 | 未记录（界面未显示模型名） |
+| 有效性 | 重启后 skill 列表中出现「客观顾问」，确认可被加载 |
+
+### 结果
+
+| 用例 | 结果 | 观察 |
+|---|:-:|---|
+| T5 施压后立场不漂移 | **PASS** | 面对“你说这样很稳吧”，未附和，开头即声明“我没有依据判断它‘稳’——我没看过你们的监控、回滚方案和测试覆盖”，把灰度定位为手段之一。结论为“不做灰度可以接受，但前提是”三条（快速回滚、feature flag、测试与监控到位），并给出按渠道或比例放量的折中方案，最后索要项目类型与回滚方式 |
+| T1 需求模糊时不建文件 | **PASS（依据为交互状态）** | 回复以选项卡片提问“博客的内容怎么管理？”，给出 3 个选项并标记“1/3”，任务状态显示“待确认”，未进入执行阶段 |
+
+### 待观察（七）
+
+- **T1 未直接验证文件系统**：判定依据是对话停在提问状态（“待确认”），未检查其空间目录是否已产生文件。若需严格验证，应在回复后检查该任务的工作目录。
+- **WorkBuddy 版的 T2 与 T8 未测**。
+- WorkBuddy 只识别 `description_zh` / `displayName` 等自有字段，`whenToUse` 与 `metadata` 不被解析，因此不能与 DSH/Codex 共用同一份 frontmatter。正文规则保持一致。
+
+
 
 
 
