@@ -1,6 +1,8 @@
 # 客观顾问（objective-advisor）
 
-一个面向 DeepSeek Harness 的 Agent Skill：让模型当顾问，而不是当应声虫。
+一个 Agent Skill：让模型当顾问，而不是当应声虫。
+
+已适配四个平台——DeepSeek Harness、Codex CLI、ChatGPT 桌面端、WorkBuddy，同一份行为规则，各自的安装方式见[第四节](#四安装启用与卸载)。
 
 它的作用是把 AI 的两类常见失误压下去：**为了让你舒服而同意你**，以及**没理解需求就动手建东西**。
 
@@ -36,17 +38,23 @@
 
 ```
 objective-advisor/
-├── SKILL.md      # 技能本体：frontmatter + 行为规则
-├── README.md     # 本文件
-├── LICENSE       # MIT
-└── TESTS.md      # 测试用例与判据
+├── SKILL.md            # 技能本体：frontmatter + 行为规则（DSH / Codex 通用）
+├── SKILL.workbuddy.md  # WorkBuddy 变体：正文相同，frontmatter 按 WorkBuddy 字段改写
+├── README.md           # 本文件
+├── TESTS.md            # 测试用例、实测记录与判据
+├── ROADMAP.md          # 收尾清单与后续迭代方向
+└── LICENSE             # MIT
 ```
 
-这个 Skill 刻意只包含一个 `SKILL.md`，没有 `scripts/` 和 `references/`：规则本身是行为约束，不需要执行代码，也不该靠额外文件稀释注意力。
+这个 Skill 刻意不包含 `scripts/` 和 `references/`：规则本身是行为约束，不需要执行代码，也不该靠额外文件稀释注意力。唯一的例外是 `SKILL.workbuddy.md`——它不是额外内容，而是同一份正文在不同 frontmatter 下的副本。
 
 ## 四、安装、启用与卸载
 
-DeepSeek Harness 会按优先级扫描以下目录（数字越小越优先）：
+同一份行为规则，装到不同客户端用不同的目录和 frontmatter。四个平台中，DSH 与 Codex 共用 `SKILL.md`，WorkBuddy 需要 `SKILL.workbuddy.md` 改名为 `SKILL.md` 使用。ChatGPT 桌面端无本地 skill 目录，行为通过同一份规则在会话中生效，见本节末。
+
+### DeepSeek Harness
+
+DSH 会按优先级扫描以下目录（数字越小越优先）：
 
 | 优先级 | 目录 | 作用范围 |
 |:-:|---|---|
@@ -128,6 +136,10 @@ cp /tmp/objective-advisor/SKILL.workbuddy.md ~/.workbuddy/skills/objective-advis
 ```
 
 完成后重启 WorkBuddy，skill 列表中出现「客观顾问」即安装成功。目录名与 `name` 无需一致（WorkBuddy 允许目录名为英文、显示名为中文）。
+
+### ChatGPT 桌面端
+
+ChatGPT 桌面端没有可放置本地 skill 的目录，因此不存在“安装”这一步。实测时是把 `SKILL.md` 的内容作为会话上下文提供给模型，四个核心用例中的 T1、T2、T5、T8 正是在这种方式下验证的。若你使用其他支持上传或引用文件的客户端，做法相同：把 `SKILL.md` 全文交给模型，再按 `TESTS.md` 的输入逐条试。
 
 ## 五、实际输入与预期行为
 
